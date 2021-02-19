@@ -1,6 +1,6 @@
 // Variables used by Scriptable.
 // These must be at the very top of the file. Do not edit.
-// icon-color: deep-purple; icon-glyph: image;
+// icon-color: deep-green; icon-glyph: calendar;
 
 // The manority of this script is by u/mzeryck with parts from u/Sharn25 and u/corderjones
 
@@ -35,8 +35,8 @@ const dateDisplay = "EEEE, MMMM d"
 //Update CITY_WEATHER with City ID
 
 // API Key and City Code
-let API_WEATHER = "xxxxxxxxxx";//Load Your api here
-let CITY_WEATHER = "xxxxxxxxxx";//add your city ID
+let API_WEATHER = "6abd70343498019a436f34886a42bea2";//Load Your api here
+let CITY_WEATHER = "1792520";//add your city ID
 
 //Get storage
 var base_path = "/var/mobile/Library/Mobile Documents/iCloud~dk~simonbs~Scriptable/Documents/weather/";
