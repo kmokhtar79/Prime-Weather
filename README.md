@@ -1,5 +1,5 @@
 # Prime-Weather
-This is a Scriptable widget that lets you display greetings, weather condition and events and supports custome widget background as well. 
+This is a Scriptable widget that lets you display battery (optional), greetings (optional), weather temprature,  condition, events and supports custome widget background as well. 
 
 # Setup
 Copy the code in Prime-Weather.js. 
@@ -9,3 +9,4 @@ Due to limitation with scriptable auto update location not possible. So get the 
 Use web address to get your location City ID ---> https://gist.github.com/sharn25/3f62e1969d7eaec22bd6b5f923651a0d  
 Get your city ID use link by putting your longitude, latitude and API_KEY ---> http://api.openweathermap.org/data/2.5/weather?lat=19.034103202555187&lon=73.07745084021239&appid=API_KEY&units=metric
 Update CITY_WEATHER with City ID
+![What is this](Screenshot.PNG)
