@@ -2,6 +2,10 @@
 // These must be at the very top of the file. Do not edit.
 // icon-color: deep-green; icon-glyph: calendar;
 
+// Variables used by Scriptable.
+// These must be at the very top of the file. Do not edit.
+// icon-color: teal; icon-glyph: magic;
+
 // The manority of this script is by u/mzeryck with parts from u/Sharn25 and u/corderjones
 
 /*
@@ -12,20 +16,20 @@
 /* -- PREVIEW YOUR WIDGET -- */
 
 // Change to true to see a preview of your widget.
-const testMode = true
+const testMode = false
 
-// Optionally specify the size of your widget preview.
 const widgetPreview = "medium"
 
+// Optionally specify the size of your widget preview.
 /* -- SETTINGS -- */
 
 // Enable/disable settings below as your liking
 // Optionally show greetings.
 const showGreeting = true
 // Optionally show battery.
-const showBattery = false
+const showBattery = true
 // Optionally type in user's name to show.
-const user = ""
+const user = "" //add your name to be added in the Greetings
 // Change the  high tmeprature text as your liking 
 const highTempText = " with a top of "; 
 // Choose the date style. "iOS" matches the default calendar app (like: THURSDAY 29)
@@ -38,12 +42,30 @@ const dateDisplay = "EEEE, MMMM d"
 //Due to limitation with scriptable auto update location not possible. So get the city ID for your location. 
 //Use web address to get your location City ID ---> https://gist.github.com/sharn25/3f62e1969d7eaec22bd6b5f923651a0d  
 //Get your city ID use link by putting your longitude, latitude and API_KEY ---> http://api.openweathermap.org/data/2.5/weather?lat=19.034103202555187&lon=73.07745084021239&appid=API_KEY&units=metric
-//Update CITY_WEATHER with City ID
+//Update CITY_WEATHER with City name
 
 // API Key and City Code
-let API_WEATHER = "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx";//Load Your api here
-let CITY_WEATHER = "xxxxxxx";//add your city ID
+let API_WEATHER = "*******************";//Load Your api here
+let CITY_WEATHER = "*****************";//add your city name for example London
 
+Location.setAccuracyToBest();
+let curLocation = await Location.current();
+console.log(curLocation.latitude);
+console.log(curLocation.longitude);
+
+// use "&units=imperial" for Farenheit or "&units=metric" for Celcius
+let wetherurl = "http://api.openweathermap.org/data/2.5/weather?q=" + CITY_WEATHER + "&APPID=" + API_WEATHER + "&units=metric";
+var req = new Request(wetherurl)
+const weatherJSON = await req.loadJSON();
+const cityName = weatherJSON.name;
+const weatherarry = weatherJSON.weather;
+const iconData = weatherarry[0].icon;
+const weathername = weatherarry[0].main;
+const curTempObj = weatherJSON.main;
+const curTemp = curTempObj.temp;
+const highTemp = curTempObj.temp_max;
+const lowTemp = curTempObj.temp_min;
+const feel_like = curTempObj.feels_like;
 //Get storage
 var base_path = "/var/mobile/Library/Mobile Documents/iCloud~dk~simonbs~Scriptable/Documents/weather/";
 var fm = FileManager.iCloud();
@@ -77,45 +99,31 @@ async function fetchimagelocal(path){
 	}
   }
 }
-
-// Weather icons
-async function downloadimg(path){
-	const url = "http://a.animedlweb.ga/weather/weathers25_2.json";
-	const data = await fetchWeatherData(url);
-	var dataimg = null;
-	var name = null;
-	if(path.includes("bg")){
-	  dataimg = data.background;
-	  name = path.replace("_bg","");
-	}else{
-	  dataimg = data.icon;
-	  name = path.replace("_ico","");
-	}
-	var imgurl=null;
-	switch (name){
+//Add SFSymbol support
+	switch (iconData){
 	  case "01d":
-		imgurl = dataimg._01d;
+		imgurl = SFSymbol.named("sun.max.fill").image;
 	  break;
 	  case "01n":
-		imgurl = dataimg._01n;
+		imgurl = SFSymbol.named("moon.fill").image;
 	  break;
 	  case "02d":
-		imgurl = dataimg._02d;
+		imgurl = SFSymbol.named("cloud.sun.fill").image;
 	  break;
 	  case "02n":
-		imgurl = dataimg._02n;
+		imgurl = SFSymbol.named("cloud.moon.fill").image;
 	  break;
 	  case "03d":
-		imgurl = dataimg._03d;
+		imgurl = SFSymbol.named("cloud.sun.fill").image;
 	  break;
 	  case "03n":
-		imgurl = dataimg._03n;
+		imgurl = SFSymbol.named("cloud.moon.fill").image;
 	  break;
 	  case "04d":
-		imgurl = dataimg._04d;
+		imgurl = SFSymbol.named("cloud").image;
 	  break;
 	  case "04n":
-		imgurl = dataimg._04n;
+		imgurl = SFSymbol.named("cloud.fill").image;
 	  break;
 	  case "09d":
 		imgurl = dataimg._09d;
@@ -124,13 +132,13 @@ async function downloadimg(path){
 		imgurl = dataimg._09n;
 	  break;
 	  case "10d":
-		imgurl = dataimg._10d;
+		imgurl = SFSymbol.named("cloud.sun.rain.fill").image;
 	  break;
 	  case "10n":
-		imgurl = dataimg._10n;
+		imgurl = SFSymbol.named("cloud.moon.rain.fill").image;
 	  break;
 	  case "11d":
-		imgurl = dataimg._11d;
+		imgurl = SFSymbol.named("cloud.sun.bolt.fill").image;
 	  break;
 	  case "11n":
 		imgurl = dataimg._11n;
@@ -142,46 +150,14 @@ async function downloadimg(path){
 		imgurl = dataimg._13n;
 	  break;
 	  case "50d":
-		imgurl = dataimg._50d;
+		imgurl = SFSymbol.named("cloud.fog.fill").image;
 	  break;
 	  case "50n":
-		imgurl = dataimg._50n;
+		imgurl = SFSymbol.named("cloud.fog.fill").image;
 	  break;
 	}
-	const image = await fetchimageurl(imgurl);
-	console.log("Downloaded Image");
-	fm.writeImage(base_path+path+".png",image);
-}
-
-//get Json weather
-async function fetchWeatherData(url) {
-  const request = new Request(url);
-  const res = await request.loadJSON();
-  return res;
-}
-
-// Get Location 
-/*Location.setAccuracyToBest();
-let curLocation = await Location.current();
-console.log(curLocation.latitude);
-console.log(curLocation.longitude);*/
-
-// use "&units=imperial" for Farenheit or "&units=metric" for Celcius
-let wetherurl = "http://api.openweathermap.org/data/2.5/weather?id=" + CITY_WEATHER + "&APPID=" + API_WEATHER + "&units=metric" 
-//"http://api.openweathermap.org/data/2.5/weather?lat=" + curLocation.latitude + "&lon=" + curLocation.longitude + "&appid=" + API_WEATHER + "&units=metric";
-//"http://api.openweathermap.org/data/2.5/weather?id=" + CITY_WEATHER + "&APPID=" + API_WEATHER + "&units=metric"
-
-const weatherJSON = await fetchWeatherData(wetherurl);
-const cityName = weatherJSON.name;
-const weatherarry = weatherJSON.weather;
-const iconData = weatherarry[0].icon;
-const weathername = weatherarry[0].main;
-const curTempObj = weatherJSON.main;
-const curTemp = curTempObj.temp;
-const highTemp = curTempObj.temp_max;
-const lowTemp = curTempObj.temp_min;
-const feel_like = curTempObj.feels_like;
-//Completed loading weather data
+	const image = imgurl
+	
 
 /* -- EVENTS -- */
 
@@ -189,7 +165,7 @@ const feel_like = curTempObj.feels_like;
 const showEvents = true
 
 // Choose whether to show all-day events.
-const showAllDay = false
+const showAllDay = true
 
 // Specify how many events to show.
 const numberOfEvents = 1
@@ -215,7 +191,7 @@ const elementSpacing = 12
 
 // Use iosfonts.com, or change to "" for the system font.
 const fontName = ""
-
+const mediumWidgetWidth = 896
 // Find colors on htmlcolorcodes.com
 const fontColor = new Color("#ffffff")
 
@@ -242,7 +218,7 @@ const resetWidget = false
 /* -- GLOBAL VALUES -- */
 
 // Widgets are unique based on the name of the script.
-const filename = Script.name() + ".jpg"
+const filename = Script.name() + "light-medium-top.jpg"
 const files = FileManager.local()
 const path = files.joinPath(files.documentsDirectory(), filename)
 const fileExists = files.fileExists(path)
@@ -271,9 +247,9 @@ var battery = "" + getBatteryLevel();
   if (showBattery) {
 let batterytext = widget.addText(battery);
 formatText(batterytext, batterytextSize)
+
     widget.addSpacer(10)
   }
-
   //Battery Render
 function getBatteryLevel() {
 	const batteryLevel = Device.batteryLevel()
@@ -314,12 +290,13 @@ let hStack = widget.addStack();
 // Aligns weather line to right
 // hStack.addSpacer(30)
 //icon image
-var img = Image.fromFile(await fetchimagelocal(iconData + "_ico"));
- 
-//image in stack
+// var img = Image.fromFile(await fetchimagelocal(iconData + "_ico"));
+var img = imgurl
+//  
+//image in stack// 
 let widgetimg = hStack.addImage(img);
 widgetimg.imageSize = new Size(22, 22);
- 
+widgetimg.tintColor = new Color("#ffffff");
 //tempeture label in stack
 let temptext = hStack.addText("\xa0\xa0"+ Math.round(curTemp).toString()+ "\u00B0" + "\xa0\xa0" + weathername + highTempText + Math.round(highTemp)+"\u00B0")
       formatText(temptext, wtrTextSize);
@@ -331,7 +308,7 @@ temptext.textOpacity = (0.7);
   if (showEvents) {
 
     // Determine which events to show, and how many.
-    const todayEvents = await CalendarEvent.today([])
+    const todayEvents = await CalendarEvent.thisWeek([])
     let shownEvents = 0
     
     for (const event of todayEvents) {
@@ -344,7 +321,7 @@ temptext.textOpacity = (0.7);
       }
     }
 
-    // If there's room and we need to, show tomorrow's events.
+     // If there's room and we need to, show tomorrow's events.
     let multipleTomorrowEvents = false
     if (showTomorrow && shownEvents < numberOfEvents) {
 
@@ -517,6 +494,7 @@ function shouldShowEvent(event) {
   return (event.startDate.getTime() > date.getTime())
 }
 
+
 // Provide the specified font.
 function provideFont(fontName, fontSize) {
   if (fontName == "" || fontName == null) {
@@ -597,6 +575,18 @@ function cropImage(img, rect) {
 // Pixel sizes and positions for widgets on all supported phones.
 function phoneSizes() {
   let phones = {
+    "2778": {
+    "models": ["12 Pro Max"],
+    "small": 510, 
+    "medium": 1092,
+    "large": 1092,
+    "left": 96,
+    "right": 678,
+    "top": 246,
+    "middle": 882,
+    "bottom": 1518
+  },
+
    "2532": {
     "models"  : ["12", "12 Pro"],
     "small"   : 474, 
