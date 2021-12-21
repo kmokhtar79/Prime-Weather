@@ -218,7 +218,7 @@ const resetWidget = false
 /* -- GLOBAL VALUES -- */
 
 // Widgets are unique based on the name of the script.
-const filename = Script.name() + "light-medium-top.jpg"
+const filename = Script.name() + ".jpg"
 const files = FileManager.local()
 const path = files.joinPath(files.documentsDirectory(), filename)
 const fileExists = files.fileExists(path)
